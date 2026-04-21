@@ -1,0 +1,22 @@
+Note 1
+
+Issue: let student:(String,i32,bool,[i32;5]) =  ("Andheri Kumar".to_string(),30,false,[20,60,40,50,60]);
+
+let student:(String,i32,bool,[i32;5]) = ("Andherei Kumar".to_string(),30,false,[20,30,40,50,60]);
+
+println!("Mixed tuples {:?}" ,student );
+println!("Mixed tuples name {:?}",student.0);          /// why i am getting outpur as "Andheri Kumar"   /// why i am simply not getting --> Andheri Kumar
+
+
+Solution: 
+
+
+{:?}
+Debug
+Shows the structure of the data (good for troubleshooting).
+"Andheri Kumar"
+{}
+Display
+Shows the data in a human-readable format.
+Andheri Kumar
+
