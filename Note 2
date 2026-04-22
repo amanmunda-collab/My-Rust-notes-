@@ -1,0 +1,72 @@
+Issue - explain this code about hashmap in rust 
+-------------------------------------------------------------------------------------
+
+// Hash maps
+    let mut scores: HashMap<String, u32> = HashMap::new();
+    scores.insert(String::from("Blue"), 10);
+    scores.insert(String::from("Yellow"), 50);
+
+    let score = scores.get(&String::from("Blue")).copied().unwrap_or(0);
+
+    for (key, value) in &scores {
+        println!("{key}: {value}");
+    }
+    println!("Score: {}", score);
+    println!("{:?}", scores);
+
+
+
+----------------------------------------------------------------------------------------
+
+This code demonstrates the basics of using a **HashMap** in Rust, which is a collection of key-value pairs. Think of it like a dictionary where you look up a "word" (the key) to find its "definition" (the value).
+
+Here is the step-by-step breakdown:
+
+### 1. Initialization and Insertion
+```rust
+let mut scores: HashMap<String, u32> = HashMap::new();
+scores.insert(String::from("Blue"), 10);
+scores.insert(String::from("Yellow"), 50);
+```
+
+* **`HashMap::new()`**: Creates a new, empty map.
+* **`mut`**: The map must be mutable because we are adding data to it.
+* **Types**: The map is defined as `HashMap<String, u32>`, meaning the keys are Strings and the values are unsigned 32-bit integers.
+* **`insert`**: This adds the key-value pairs into the collection.
+
+
+
+---
+
+### 2. Safely Retrieving a Value
+This is the most "Rust-heavy" line in the snippet:
+```rust
+let score = scores.get(&String::from("Blue")).copied().unwrap_or(0);
+```
+Rust is very protective of memory, so getting a value involves a few safety checks:
+* **`.get(&String::from("Blue"))`**: Returns an `Option<&u32>`. It returns `Some(&value)` if the key exists, or `None` if it doesn’t.
+* **`.copied()`**: Since `.get` gives us a reference (`&u32`), `.copied()` turns that into an actual `u32` value by copying it. This is easier to work with than a reference.
+* **`.unwrap_or(0)`**: This handles the "what if the key doesn't exist?" scenario. If the key is found, it gives the value; if not, it defaults to `0`.
+
+---
+
+### 3. Iterating Over the Map
+```rust
+for (key, value) in &scores {
+    println!("{key}: {value}");
+}
+```
+* **`&scores`**: We iterate over a **reference** to the map. If we didn't use the `&`, the loop would "consume" (move) the map, and we wouldn't be able to use `scores` later in the code.
+* **`(key, value)`**: This uses **destructuring** to pull the key and value out of each entry in the map during the loop.
+
+---
+
+### 4. Printing the Results
+```rust
+println!("Score: {}", score);
+println!("{:?}", scores);
+```
+* The first line prints the specific score we retrieved earlier.
+* The second line uses the **Debug formatter** `{:?}` to print the entire HashMap. HashMaps do not have a guaranteed order, so "Blue" might appear before or after "Yellow" when printed.
+
+Does the `copied().unwrap_or(0)` part make sense, or would you like to dive deeper into how Rust handles those "Optional" values?
