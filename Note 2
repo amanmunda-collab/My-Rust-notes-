@@ -15,6 +15,10 @@ Issue - explain this code about hashmap in rust
     println!("{:?}", scores);
 
 
+// note : 
+Keys can be String or &str or bool(not commonly used) or integers like <u32> <i32>
+
+but it cannot be float 
 
 ----------------------------------------------------------------------------------------
 
