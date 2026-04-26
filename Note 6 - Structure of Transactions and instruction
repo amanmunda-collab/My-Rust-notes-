@@ -1,0 +1,68 @@
+Issue: Explain Structure of Transactions and instruction
+Solution: 
+note : read last why solana is fast ? 
+To understand a Solana transaction, it is best to think of it as a **sealed envelope** (the Transaction) containing a **letter** (the Message), and inside that letter are specific **commands** (the Instructions).
+
+---
+
+## 1. The Transaction Structure (The Envelope)
+A transaction is the top-level object sent to the cluster. It consists of two primary parts:
+
+1.  **Signatures:** An array of digital signatures (usually Ed25519). Every account marked as a "signer" in the message must provide a signature here to prove they authorized the transaction.
+2.  **The Message:** This is the actual data that the signatures are protecting. If even one bit of the message changes, the signatures become invalid.
+
+
+
+---
+
+## 2. The Message Structure (The Content)
+The Message is where the logic and account requirements live. It is organized into four distinct sections:
+
+### A. The Header
+A small metadata section that tells the runtime how many signatures to expect and how to handle permissions:
+* **Required Signatures:** Total number of signatures required.
+* **Read-only Signed:** Accounts that must sign but won't be modified.
+* **Read-only Unsigned:** Accounts that aren't signing and won't be modified.
+
+### B. Account Keys or array of addresses 
+An ordered list (array) of every account address involved in the transaction. This is why Solana is so fast; by listing every account upfront, the network knows exactly which transactions can run in parallel without "bumping" into each other.
+
+### C. Recent Blockhash
+A "time-stamp" of slots. Transactions must include a recent blockhash (usually less than ~2 minutes old). This prevents "replay attacks" where someone tries to send your transaction twice.
+
+### D. Instructions
+An array of one or more "tasks" the transaction should perform.
+
+---
+
+## 3. The Instruction Structure (The Command)
+An Instruction is the smallest unit of logic on Solana. Every instruction must contain three specific pieces of information so the network knows what to do:
+
+| Component | Purpose |
+| :--- | :--- |
+| **Program ID** | The address of the "Smart Contract" (Program) that will execute this instruction (e.g., the Token Program or a DEX Program). |
+| **Accounts** | A list of metadata for every account this specific instruction touches. Each entry specifies: 
+.          **Address Index** (pointer to the Message's Account Keys)
+           **Is Signer?** (True/False) **Is Writable?** (True/False) |
+
+
+| **Data** | A general-purpose byte array. This tells the program *what* to do (e.g., "Transfer 50 tokens"). The program is responsible for decoding these bytes. |
+
+
+
+
+## 4. Summary: The Hierarchy
+To visualize how these fit together, follow the path from the top down:
+
+1.  **Transaction** (The whole package)
+    * **Signatures** (Proof of authority)
+    * **Message** (The technical plan)
+        * **Recent Blockhash** (Validity window)
+        * **Account Keys** (All addresses involved)
+        * **Instructions** (The specific actions)
+            * **Program ID** (Who is doing the work?)
+            * **Accounts** (What is being modified?)
+            * **Data** (What are the specific parameters?)
+
+### The "Execution" Flow
+When you send a transaction, the Solana Runtime looks at the **Account Keys**. It sees which accounts are marked **Writable**. If Transaction A and Transaction B do not have any overlapping **Writable** accounts, Solana executes them **simultaneously** on different CPU cores. This is the secret to Solana’s high performance.
