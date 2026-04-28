@@ -1,0 +1,14 @@
+Issue: what is sBPF in solana .
+
+solution : 
+
+* sBPF (Solana Berkeley Packet Filter) is the low-level machine language (bytecode) that the Solana Virtual Machine (SVM) executes.
+* Developers write in Rust or C++, which is compiled into sBPF bytecode (a .so file) using LLVM(Low Level Virtual Machine).
+* Performance: sBPF uses Just-In-Time (JIT) compilation to run nearly as fast as native hardware code.
+* Security: Programs are "sandboxed," meaning they cannot access unauthorized memory or crash the validator's OS.
+* Stack Limit: Extremely strict 4KB limit for local variables. Exceeding this causes a "Stack offset exceeded" error.
+* Heap Limit: 32KB pool for dynamic memory (used by Vec, String, Box).
+* Compute Units (CU): Every sBPF instruction has a cost. Standard transactions are limited to 200,000 CU.
+* Architecture: 64-bit with 11 registers (r0-r10). r1-r5 are for arguments, r0 is for return values, and r10 is the stack pointer.
+* Cross-Program Invocations (CPI): sBPF includes special instructions that allow one Solana program to call another.
+* Deployment: The compiled .so file is uploaded to a Solana Cluster (Devnet, Testnet, or Mainnet), which consists of many decentralized validator nodes.
