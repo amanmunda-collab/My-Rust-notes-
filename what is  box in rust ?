@@ -1,0 +1,9 @@
+fn main(){
+    // a container that stores data  in heap and the pointer to that data is stored in the stack.
+
+// Box in rust used to store data on the heap instead of the stack. It is a smart pointer that provides ownership and automatic memory management for the data it points to.
+//  When you create a Box, it allocates memory on the heap and stores the value there, while the Box itself is stored on the stack. This allows you to work with large data structures 
+ //  or values that may not fit on the stack, while still benefiting from Rust's ownership and borrowing rules.
+
+let my_box:Box<i64> = Box::new(5);// my_box is a pointer that lives on the stack but the value 5 is stored on the heap.
+println!("{}", *my_box * 5 );
