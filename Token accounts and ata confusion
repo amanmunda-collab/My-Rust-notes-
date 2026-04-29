@@ -1,0 +1,28 @@
+
+In short: You can think of your ATA as your "Main Savings Account" and your 10 Generic Accounts as "Cash Envelopes" hidden around your house. Both hold the same money, but one is much easier for the world to interact with.
+
+
+when you normally create an coin - the initial balance is stored in your ata. 
+
+but you can create different token accounts to hold the same coin but not recommended. 
+
+--- when you share your token to others - a new ata is created for them. 
+
+_-------------------------------------
+
+mint account -- doesnt hold the actual tokens, it stores information about tokens like total supply, decimals and and other info.
+
+token account - where actual money is stored. -- it can be randomly generated but may or may not be  derived using the formula for the ata. 
+
+--------- every ata is a token account but every token account is not ata ------------
+
+ata and token account 
+Both of them contain the exact same fields:
+
+Mint: Which token it holds (e.g., USDT).
+
+Owner: Who has the key (your Wallet).
+
+Amount: The balance (e.g., 500).
+
+State: (Initialized, Frozen, etc.).
