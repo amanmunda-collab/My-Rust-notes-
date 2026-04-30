@@ -1,0 +1,39 @@
+Issue : which account controls all account or what is the actual hierarchy of accounts who controls it ? 
+
+Solution :
+
+----------------------------------------First, Know about the hierarchy of programs or accounts in solana ---------------------------------
+
+                                           The Technical Root: The Native Loader
+
+If you are looking for the "Boss of all Programs" in the code, it is the Native Loader.
+
+Address: NativeLoader1111111111111111111111111111111
+
+Role: This is the absolute base of the hierarchy. It is the only account that is "self-owned" or owned directly by the Solana Runtime.
+
+Authority: It owns the BPF Loaders (which deploy your apps) and the System Program (which manages your SOL).
+
+Why it's not a loop: The Native Loader isn't a program you can "call" like others; it is a set of hardcoded instructions inside the validator software itself. It is the "Genesis Authority."  
+
+If 67% of the total staked SOL (held by thousands of independent validators) agrees to change the code, the entire network changes. even the code for native loader changes. 
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Example ----- 
+
+Summary: The "Operating System" Analogy
+Think of Solana like a computer:
+
+The Hardware/Kernel: The Native Loader. It just exists.
+
+The OS Drivers: The System Program and BPF Loader. They manage files and apps.
+
+The Apps: Your Token Program or Pump.fun.
+
+The Files: Your Token Accounts.
+
+There is no loop because the "Kernel" is the final authority. It doesn't need to ask another program for permission; it is hardcoded to be the "Truth."
