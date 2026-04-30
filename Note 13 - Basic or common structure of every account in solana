@@ -1,0 +1,105 @@
+Issue : What is the basic structure of each and every account in solana ? 
+
+solution : 
+
+Note  - Everything whether a program or account that holds sol in solana is technically an account . Each account has same structure. 
+
+---------------------------------------------------------------------------------------------------------
+To understand the structure of "every" account in Solana, you have to look at it in two layers:
+
+**Account Header** (which is identical for every single account on the blockchain) and the
+
+**Account Data** (which varies depending on the program that owns it).
+
+--------------------------------------------------------------------------------------------------------
+
+### 1. The Universal Account Header
+At the protocol level, the Solana runtime sees every account as a specific structure. Whether it's your wallet, a smart contract, or a USDC storage box, it **must** contain these five fields.
+
+
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| **lamports** | `u64` | The SOL balance of the account (1 SOL = $10^9$ lamports). |
+| **data** | `Vec<u8>` | A raw byte array. This is where the specific "state" is stored. |
+| **owner** | `Pubkey` | The address of the program that has "write access" to this account. |
+| **executable** | `bool` | `true` if the account contains a program (code); `false` if it’s data. |
+| **rent_epoch** | `u64` | (Deprecated) Used for the old rent collection system. |
+
+
+**In Rust terms, it looks like this:**
+```rust
+----------------------------------------------------------------
+pub struct Account {
+    pub lamports: u64,      // The money inside
+    pub data: Vec<u8>,      // The "payload" or "state"
+    pub owner: Pubkey,      // Who can change the data
+    pub executable: bool,   // Is this a smart contract?
+    pub rent_epoch: Epoch,  // Metadata
+}
+
+------------------------------------------------------------------------
+```
+
+---
+
+### 2. The "Data" Layer (Program-Specific)
+While the header is always the same, the **`data`** field is a blank canvas. Programs define their own "structs" to organize these bytes. Here are the most common ones you will encounter:
+
+-----------------------------------------------------------------------------------------------------------------------
+#### **A. The System Account (Your Wallet)**
+If you just created a fresh SOL wallet, it is owned by the **System Program**.
+* **Structure:** The `data` field is usually **empty (0 bytes)**.
+* **Logic:** The System Program only tracks the `lamports` in the header.
+-----------------------------------------------------------------------------------------------------------------------
+#### **B. The Token Mint (The "Currency")**
+Owned by the **Token Program**. We've seen this before, but here is the raw layout of those data bytes:
+```rust
+
+pub struct Mint {
+    pub mint_authority: COption<Pubkey>, // 36 bytes
+    pub supply: u64,                     // 8 bytes
+    pub decimals: u8,                    // 1 byte
+    pub is_initialized: bool,            // 1 byte
+    pub freeze_authority: COption<Pubkey>,// 36 bytes
+} // Total: 82 bytes
+
+
+```
+-----------------------------------------------------------------------------------------------------------------------
+#### **C. The Token Account (The "Locker")**
+Also owned by the **Token Program**. This is how your 100 USDC is actually stored in bytes:
+```rust
+pub struct TokenAccount {
+    pub mint: Pubkey,               // 32 bytes
+    pub owner: Pubkey,              // 32 bytes
+    pub amount: u64,                // 8 bytes
+    pub delegate: COption<Pubkey>,   // 36 bytes
+    pub state: AccountState,        // 1 byte (0=Uninit, 1=Init, 2=Frozen)
+    pub is_native: COption<u64>,     // 12 bytes
+    pub delegated_amount: u64,      // 8 bytes
+    pub close_authority: COption<Pubkey>, // 36 bytes
+} // Total: 165 bytes
+```
+
+-----------------------------------------------------------------------------------------------------------------------
+
+#### **D. The Multisig Account**
+Used when a token needs "M of N" signatures to move (e.g., 2-of-3 owners).
+* **Structure:** Contains a list of `n` public keys and a `m` value (required signers).
+
+---
+-----------------------------------------------------------------------------------------------------------------------
+
+### 3. The Modern Twist: Token-2022 (Extensions)
+In 2026, many tokens use the **Token-2022** standard. Its structure is more complex because it is **variable-length**.
+
+1.  **Base Layer:** It starts with the same 82-byte (Mint) or 165-byte (Account) structure.
+2.  **Padding:** It adds a small buffer of empty bytes.
+3.  **Extensions (TLV):** It appends **Type-Length-Value** data at the end.
+    *   *Type:* What is this? (e.g., "Transfer Fee")
+    *   *Length:* How many bytes does it take?
+    *   *Value:* The actual data (e.g., "0.5%").
+
+---
+-----------------------------------------------------------------------------------------------------------------------
