@@ -1,0 +1,37 @@
+Issue : What are nonces or nonce account or How to make a transaction durable or to schedule transaction or to wait for a long period of transaction ? 
+
+Solution :
+
+
+---------------------------------------------------------------------------------------------------
+### 1. The Core Problem: The 90-Second Rule
+
+To prevent "double-spending" (someone copying your signed transaction and draining your wallet), Solana requires every transaction to include a **Recent Blockhash**. 
+*   The network checks this blockhash. If it is older than ~150 blocks (about 80–90 seconds), the transaction is completely rejected.
+*   **The Issue:** This forced 90-second expiration makes it impossible to schedule future transactions, take your time gathering multiple signatures (like a DAO), or sign transactions offline.
+
+---------------------------------------------------------------------------------------------------
+### 2. The Solution: Durable Nonces
+
+A **Durable Nonce** is a 32-byte hash that completely replaces the "Recent Blockhash" in a transaction. 
+*   By using a Durable Nonce, you remove the 90-second mortality limit. 
+*   A transaction signed with a durable nonce can be submitted to the network tomorrow, next week, or next year, and it will still be valid.
+---------------------------------------------------------------------------------------------------
+### 3. How It Prevents Double-Spending
+If the 90-second limit is removed, what stops someone from reusing your transaction? 
+*   **The Advance Rule:** When you submit a transaction using a Durable Nonce, the *very first instruction* in that transaction must be an "Advance Nonce" command.
+*   **The Result:** The moment the network executes your transaction, the nonce value is immediately changed (advanced) to a new hash. Because the hash changed, your original signature is instantly invalidated, making a second attempt impossible.
+
+---------------------------------------------------------------------------------------------------
+### 4. The Two Important Accounts
+To use this system, you interact with two specific roles on the blockchain:
+*   **The Nonce Account:** A specialized, rent-exempt account that lives on the blockchain solely to store the 32-byte nonce value. 
+*   **The Nonce Authority:** The "owner" or controller of the Nonce Account. Only the Authority has the permission to advance the nonce to a new value or withdraw the SOL used to fund the Nonce Account.
+
+---------------------------------------------------------------------------------------------------
+### 5. Primary Use Cases
+Because they pause the expiration timer, Durable Nonces unlock several advanced mechanics:
+*   **Offline Signing:** You can generate a transaction, move it to an air-gapped (unconnected) computer, sign it securely, and bring it back to the internet to submit later.
+*   **Multi-Sig Wallets / DAOs:** When a transaction requires multiple people to sign, and coordinating those people takes much longer than 90 seconds.
+*   **Scheduled / Triggered Transactions:** Pre-signing a transaction to be stored in a database and automatically submitted only when a specific time or condition is met.
+*   **Burst Submissions:** Sending massive amounts of transactions at the exact same time without the network accidentally rejecting them as duplicates.
