@@ -1,0 +1,48 @@
+Issue : What are Sysvar accounts, upgrade authoriy and update authority ? 
+
+Solution : 
+----------------------System Variables -------- Sysvar Accounts -------------------------------------------------------------------------------------
+
+Sysvars are read-only accounts at fixed addresses that provide real-time information about the Solana cluster’s state. Unlike standard accounts, they do not need to be initialized; they are maintained by the network.
+
+*   **Fixed Addresses:** Each sysvar has a well-known public key (e.g., `SysvarC1ock11111111111111111111111111111111`).
+*   **Key Sysvars for Developers:**
+    *   **Clock:** Accesses current slot, epoch, and Unix timestamp. Useful for time-based logic (lockups, vesting).
+    *   **Rent:** Provides the current rent-exempt minimum. Critical for dynamic account creation.
+    *   **Instructions:** Allows a program to inspect other instructions within the same transaction (used for security checks and "flash loan" verification).
+    *   **EpochSchedule:** Information about epoch boundaries and durations.
+*   **Access Methods:**
+    *   **Instruction Pass-in:** Historically, you had to pass the sysvar account into your instruction.
+    *   **Get Method:** Modern Solana versions (and Anchor) allow accessing sysvars directly within the program via `Sysvar::get()`, which is more efficient as it doesn't count toward the account limit in the instruction header.
+
+---
+ ------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------
+## **Upgrade Authority (Programs)**
+
+The **Upgrade Authority** is a specific permission tied to the **BPF Upgradeable Loader**, which manages all smart contracts (programs) on Solana.
+
+*   **Structure:** Solana programs consist of two accounts: a **Program Account** (the ID) and a **ProgramData Account** (the actual code). The Upgrade Authority is stored in the **ProgramData Account**.
+*   **Capabilities:**
+    *   Can overwrite the program’s logic with new bytecode.
+    *   Can close the program account to reclaim the rent-exempt SOL.
+*   **Immutability:** Setting the Upgrade Authority to `None` (or a null address) makes the program **immutable**. This is a one-way operation. once revoked, the code can never be changed.
+*   **Security Standard:** In production, the Upgrade Authority should almost always be a **Multisig** (e.g., Squads) rather than a single "hot" wallet to prevent a single point of failure or a "rug pull" via code injection.
+
+---
+ ------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------
+ ------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------
+ 
+## **Update Authority (Token Metadata)**
+
+The **Update Authority** is a concept primarily used by the **Metaplex Token Metadata Program**, which handles the names, symbols, and URIs (links to images/JSON) for SPL tokens and NFTs.
+
+*   **Metadata Account:** Every token can have a Metadata Account. This account holds the `Update Authority` field.
+*   **Capabilities:**
+    *   Allows the holder to change the token's name, symbol, and URI.
+    *   Allows the holder to flip the `is_mutable` flag from `true` to `false`.
+*   **Distinction from Mint Authority:** The Update Authority **cannot** create new tokens. It only manages the "identity" (the label) of the token.
+*   **Risk Profile:** If a creator retains Update Authority, they could technically change a token’s image or name to something else. However, as long as `Mint Authority` and `Freeze Authority` are disabled (N/A), they cannot steal your tokens or print more.
+
+---
+ ------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------
+ ------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------- ------------------------------------------------------------------
