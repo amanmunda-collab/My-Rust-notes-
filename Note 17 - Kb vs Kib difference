@@ -1,0 +1,24 @@
+Issue : What is the difference between Kb and Kib
+Solution : 
+
+found this on quora , 
+
+The abbreviations without the ‘i’ are decimal approximations, powers of 10, in increments of 3, while the ones with the ‘i’ are powers of two, in increments of 10:
+
+1 KB = 1000 bytes (10**3)
+
+1 KiB = 1024 bytes ( 2**10)
+
+1 MB = 1000 KB = 1000000 bytes (10**6)
+
+1 MiB = 1024 KiB = 1048576 bytes (2**20)
+
+1 GB = 1000 MB = 1000000000 bytes (10**9)
+
+1 GiB = 1024 MiB = 1073741824 (2**30)
+
+1 TB = 1000 GB = 1000000000000 bytes (10**12)
+
+1 TiB = 1024 GiB = 1099511627776 (2**40)
+
+Until the wide-spread use of 64-bit processors, most computers had a 32-bit (4 byte) word size, which limited the size of files to 4 GiB, or 4294967296 bytes, and the size of signed integers to 2 GiB 2147483648 bytes (31 bits plus sign bit).
