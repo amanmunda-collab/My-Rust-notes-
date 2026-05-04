@@ -1,0 +1,49 @@
+Issue : What are events? Why they are cheaper than storing on accounts? 
+Solution: 
+
+### **Solana Events: Essential Technical Notes**
+
+---
+
+### **1. What are Events?**
+*   **Definition:** Structured messages "broadcasted" by a Solana program during transaction execution.
+*   **Mechanism:** In the Anchor framework, they are defined as Rust structs and triggered using the `emit!` macro.
+*   **Role in IDL:** The IDL (Interface Definition Language) stores the **schema** of the event so off-chain clients (JS/Python) know how to deserialize the raw log bytes into readable data.
+
+---
+
+### **2. Where are Events Stored?**
+*   **Transaction Logs:** Events are written directly into the **Execution Logs** of a specific transaction.
+*   **Ledger Storage:** They live in the **Ledger** (historical record of blocks).
+*   **Off-chain Accessibility:** Because they are part of the ledger history, they are archived by **BigTable** or **Indexers** (like Helius or Hello Moon).
+*   **On-chain Limitation:** Programs **cannot** read their own events. Once a transaction is finished, the event data is inaccessible to the Solana runtime.
+
+
+
+---
+
+### **3. Why are Events Cheaper?**
+The cost difference is driven by the type of hardware resource used by validators:
+
+| Feature | **Account Storage (State)** | **Events (Logs)** |
+| :--- | :--- | :--- |
+| **Hardware** | **Validator RAM:** Extremely limited and expensive. | **Ledger/Disk:** Sequential and significantly cheaper. |
+| **Cost Model** | **Rent-Exemption:** Requires a refundable SOL deposit (e.g., $~0.002$ SOL for small data). | **Execution Fee:** A one-time, non-refundable fee paid in Compute Units (CUs). |
+| **Scaling Cost** | **Linear Growth:** Storing 1,000 transaction records in an account costs 1,000x more rent. | **Negligible:** Emitting 1,000 events costs only the tiny fraction of SOL used for CUs. |
+| **Duration** | Permanent until the account is closed. | Permanent in history, but "pushed out" of active validator memory. |
+
+---
+
+### **4. Where to Use Events**
+Use events for data that needs to be **seen or tracked**, but not **processed** by the program logic itself.
+
+*   **Frontend Synchronization:** Notifying a website to refresh a UI element (e.g., "Transaction Successful" or "New High Score") via WebSockets.
+*   **Historical Activity Feeds:** Creating a list of past actions, such as a trade history on a DEX or a transfer log for an NFT.
+*   **Off-chain Automation:** Triggering "Keeper Bots" or "Webhooks" (e.g., a bot that sends a Discord message whenever a specific price threshold is met).
+*   **Data Indexing:** Allowing external databases (PostgreSQL/MongoDB) to scrape and organize program activity for analytics.
+
+---
+
+### **5. Summary: Accounts vs. Events**
+*   **Use Accounts** when your program needs to **"Remember"** a piece of data to use it in a future transaction (e.g., a user's current balance).
+*   **Use Events** when your program needs to **"Announce"** that something happened for the benefit of the outside world (e.g., that a payment was sent).
