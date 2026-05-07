@@ -1,0 +1,11 @@
+issue : What is alt account used in v0 transactions?
+solution: 
+
+Address lookup table resolution
+
+
+An ALT is an onchain account that stores up to 256 public keys. By referencing an ALT, a transaction can include additional accounts using 1-byte indices instead of 32-byte public keys, significantly reducing per-account overhead.
+
+At runtime, before execution begins, the validator resolves all ALT references into full public keys. The resolved addresses are appended to the static account keys to form the complete account keys list. ALT-resolved accounts follow the same ordering as static accounts: writable lookups come before read-only lookups.
+
+Address lookup tables only affect how accounts are referenced in the on-wire transaction. At execution time, the runtime resolves all indices to full account addresses. ALT-resolved accounts can only be writable or read-only (non-signer); they cannot be signers.
