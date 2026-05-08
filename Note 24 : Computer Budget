@@ -2,7 +2,7 @@ issue : What is compute budget ? How it is. calculated ?
 solution : 
 
 Tip :  Compute Budget instructions are placed at the very beginning of your transaction's instruction list so the validator sees your budget and price before it starts trying to execute the heavier program logic
-
+NOTE : Compute unit is calculated using microlamports (these are just virtual units , lamports are still undivisible)
 
 
 This is just a summary of solana original docs ---> 
