@@ -1,0 +1,51 @@
+issue : what are microlamports used during compute unit price ? 
+solution : 
+
+**Lamport** is the smallest unit of SOL that can actually be **stored** in an account or **transferred** between wallets. 
+You cannot have "0.5 Lamports" sitting in your wallet.
+
+However, **Micro-lamports** exist as a "virtual" or "accounting" unit used strictly for the **Priority Fee calculation**.
+
+### 1. The Scale of Units
+
+To visualize the hierarchy, think of it like this:
+
+* **1 SOL** = $1,000,000,000$ (10^9) **Lamports**
+* **1 Lamport** = $1,000,000$ (10^6) **Micro-lamports**
+* **1 SOL** = $1,000,000,000,000,000$ (10^{15}) **Micro-lamports**
+
+### 2. Why do we need "Micro" units?
+
+   If Lamports are the smallest unit we can spend, why did Solana developers invent something even smaller? The answer is **precision in bidding.**
+
+Imagine if the `SetComputeUnitPrice` was measured in whole Lamports.
+If you wanted to prioritize a heavy transaction (like a complex DEX swap) that uses **1,400,000 Compute Units (CUs)**:
+
+* If you bid just **1 Lamport per CU**, your priority fee would be $1,400,000$ Lamports ($0.0014 SOL).
+* If you wanted to outbid someone by just a tiny bit, your next option would be **2 Lamports per CU**, which doubles your fee to $0.0028$ SOL.
+
+That "jump" is too big. Using **Micro-lamports** allows users to compete in a very fine-grained auction. 
+You can bid $1.1$ Lamports per CU by setting the price to $1,100,000$ micro-lamports.
+This prevents the "priority war" from becoming too expensive too quickly.
+
+### 3. How the math works at the end
+
+Even though the calculation happens in micro-lamports, the validator can't take "fractional" lamports from your wallet. The runtime uses this formula:
+
+                         micro_lamport_fee = compute_unit_price * compute_unit_limit
+                           prioritization_fee = ceil(micro_lamport_fee / 1,000,000)
+
+
+The ceil(micro_lamport_fee / 1,000,000) ** function means the result is always **rounded up** to the nearest whole Lamport.
+
+> **Example:**
+> If your calculation results in **5,000.2 Lamports**, the network will actually charge your wallet **5,001 Lamports**.
+
+### Summary
+
+* **Lamport:** The smallest unit for **Balances** (Physical).
+* **Micro-lamport:** The smallest unit for **Bidding** (Mathematical).
+
+It's essentially a way to add six decimal places to the price tag of a Compute Unit so that the "fee market" can be efficient without being overpriced.
+
+Is the math behind the "rounding up" clear, or would you like to see a few more examples of how different bids affect the final SOL cost?
