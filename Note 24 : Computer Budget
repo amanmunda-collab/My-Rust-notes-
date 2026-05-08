@@ -1,0 +1,52 @@
+issue : What is compute budget ? How it is. calculated ?
+solution : 
+
+This is just a summary of solana original docs ---> 
+
+Here is a summary and the most important points from the provided Solana Compute Budget documentation.
+
+### **Executive Summary**
+
+Solana uses "Compute Units" (CUs) to measure and limit the computational resources a transaction consumes. The documentation outlines the default CU limits applied to transactions, how developers can manually adjust these limits using Compute Budget Instructions, and how validators calculate pre-execution costs to ensure transactions do not exceed the overall limits of a block.
+
+### **Key Takeaways & Important Points**
+
+**1. Transaction Limits & Defaults**
+
+* **Maximum Limit:** A single transaction can consume a maximum of **1.4 million CUs**.
+* **Default Allocations:** If you don't explicitly set a limit, Solana assigns defaults:
+* **200,000 CUs** for standard (non-builtin) program instructions.
+* **3,000 CUs** for system built-in instructions.
+
+
+* **Account Data Limit:** A transaction can load a maximum of 64 MiB of account data.
+
+**2. The Priority Fee "Gotcha" (Crucial for Developers)**
+
+* Priority fees are calculated based on the **requested** Compute Unit limit, *not* what your transaction actually uses.
+* If you rely on the default 200K limit but only use 10K CUs, you will overpay for priority fees.
+* **Best Practice:** Simulate your transaction to see how many CUs it actually uses, add a 10% safety margin, and set that specific number as your limit.
+
+**3. Compute Budget Instructions**
+Developers can optimize their transactions by including specific instructions from the Compute Budget Program. You can only use **one of each variant** per transaction:
+
+* `SetComputeUnitLimit`: Overrides the default CU limit (clamps at 1.4M).
+* `SetComputeUnitPrice`: Sets the priority fee you are willing to pay (in micro-lamports).
+* `RequestHeapFrame`: Requests a specific heap memory size (between 32 KiB and 256 KiB).
+* `SetLoadedAccountsDataSizeLimit`: Restricts the total bytes of account data the transaction can load.
+
+**4. The Scheduler Cost Model (Pre-Execution)**
+Before a transaction even executes, the validator's scheduler estimates its cost to see if it fits in the current block. This total cost is the sum of:
+
+1. Signature cost (e.g., 720 CUs for a standard signature).
+2. Write lock cost (300 CUs per writable account).
+3. Instruction data bytes cost.
+4. Programs execution cost (your requested CU limit).
+5. Loaded accounts data cost.
+
+**5. Block Limits**
+Transactions are packed into blocks, which have their own hard ceilings. A transaction will be rejected if it pushes the block over these limits:
+
+* **Max CUs per block:** 60,000,000 (with a proposal to increase to 100M).
+* **Max CUs for writable accounts:** 12,000,000 per block (prevents congestion on highly active single accounts).
+* **Max Vote CUs:** 36,000,000 per block.
