@@ -1,6 +1,10 @@
 issue : What is compute budget ? How it is. calculated ?
 solution : 
 
+Tip :  Compute Budget instructions are placed at the very beginning of your transaction's instruction list so the validator sees your budget and price before it starts trying to execute the heavier program logic
+
+
+
 This is just a summary of solana original docs ---> 
 
 Here is a summary and the most important points from the provided Solana Compute Budget documentation.
