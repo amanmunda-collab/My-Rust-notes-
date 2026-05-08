@@ -1,0 +1,27 @@
+issue : Why 50% of the base fee is burned and 100% tip is paid to validators ?
+
+solution: 
+
+The 50% burn of the base transaction fee on the Solana network serves two primary purposes: securing the network against validator manipulation and balancing the token's economic supply.
+
+### 1. Preventing Validator Spam (Network Security)
+
+The most critical reason for burning a portion of the base fee is to remove the financial incentive for validators to maliciously spam the network.
+
+If a block-producing validator received 100% of the base transaction fees, they could theoretically flood their own blocks with millions of fake transactions. Since they would collect all the fees they just paid to themselves, this spam attack would cost them absolutely nothing, yet it would artificially congest the network and bloat the blockchain's data.
+
+By burning 50% of the base fee, the protocol ensures every transaction carries an unrecoverable cost. If a validator attempts to spam their own block, they permanently lose half of the SOL they spend on those transactions. This makes self-spamming economically irrational.
+
+### 2. Counteracting Token Inflation (Tokenomics)
+
+Solana uses a built-in inflationary schedule to reward validators and delegators who secure the network. New SOL is minted automatically on a schedule (starting at an initial 8% annual inflation rate and gradually decreasing to a long-term floor of 1.5%).
+
+The 50% base fee burn introduces a deflationary counter-pressure. By permanently removing half of every base transaction fee from the circulating supply, the network offsets a portion of this inflation. As network activity increases, more SOL is destroyed, which helps manage token dilution and protects the value of the network for all participants.
+
+### Why Priority Fees are Handled Differently (SIMD-0096)
+
+As noted in your snippet, the *prioritization fee* is no longer burned and goes 100% to the validator.
+
+Historically, priority fees were also subject to the 50% burn. However, this structure incentivized users to bypass the protocol. Instead of paying the standard on-chain priority fee (where half would be destroyed, requiring users to pay double to give validators the tip they desired), users and applications started making "off-chain side deals" (such as Jito MEV tips) to pay validators 100% directly for priority block space.
+
+To bring these transactions back on-chain, prevent opaque side deals, and make the fee market transparent, the Solana community passed the SIMD-0096 proposal. This allocated 100% of the priority fee directly to validators to align incentives, while keeping the 50% burn on the fixed base fee to maintain baseline network security and inflation control.
