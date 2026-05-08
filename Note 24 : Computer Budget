@@ -27,12 +27,19 @@ Solana uses "Compute Units" (CUs) to measure and limit the computational resourc
 
 **2. The Priority Fee "Gotcha" (Crucial for Developers)**
 
+Tip: Read note 25 for understanding how to pay priority fees to avoid overpaying 
+
 * Priority fees are calculated based on the **requested** Compute Unit limit, *not* what your transaction actually uses.
 * If you rely on the default 200K limit but only use 10K CUs, you will overpay for priority fees.
 * **Best Practice:** Simulate your transaction to see how many CUs it actually uses, add a 10% safety margin, and set that specific number as your limit.
 
 **3. Compute Budget Instructions**
-Developers can optimize their transactions by including specific instructions from the Compute Budget Program. You can only use **one of each variant** per transaction:
+Developers can optimize their transactions by including specific instructions from the Compute Budget Program. 
+
+You can only use **one of each variant** per transaction: no duplicates of the same variant 
+it means we cannot use SetComputeUnitLimit - 2 times , but 
+we can use  --> SetComputeUnitPrice and SetComputeUnitLimit together in one transaction. 
+
 
 * `SetComputeUnitLimit`: Overrides the default CU limit (clamps at 1.4M).
 * `SetComputeUnitPrice`: Sets the priority fee you are willing to pay (in micro-lamports).
