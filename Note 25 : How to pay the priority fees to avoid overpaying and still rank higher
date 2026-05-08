@@ -1,0 +1,38 @@
+issue : How to rank higher and avoid overpaying for the priority fees ?
+
+solution: 
+
+
+Solana’s scheduler uses a Priority Score to rank transactions in the queue. The formula looks like this:  $$\te
+
+
+Priority Score = (Validator Reward * 1,000,000 ) / (Estimated Cost + 1)
+
+$$Validator Reward: Mostly your Priority Fee.
+Estimated Cost: Your requested CU Limit.
+
+
+If you don't set a SetComputeUnitLimit, the network gives you a default (usually 200,000 CUs)
+
+Scenario	      CU Limit.   	CU Price	Total Priority Fee
+Default (Lazy)	200,000.     	1,000	     200,000 Lamports
+Optimized (Pro)	1,100	        1,000.    	1,100 Lamports
+
+
+The Trap: If you set a massive CU Limit (the denominator), your Priority Score actually drops unless you pay an even more massive price. A transaction asking for 1.4 million CUs is "heavier" for the block, so the validator demands a higher price to give it the same priority as a "light" transaction.
+
+Tip : 
+      Developers use Priority Fee APIs to "calculate" the price by looking at what other people are paying right now.
+what to do ::===>>>
+
+The "Optimal" Transaction Strategy:
+
+** Simulate the transaction to find actual CU usage.
+
+**. Set Limit to Usage + 10% safety margin.
+
+**.  Get Price from a recent fee API.
+
+**.   Send both instructions in one transaction.
+
+This ensures you are the first in line while paying the least amount of SOL possible.
