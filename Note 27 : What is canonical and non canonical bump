@@ -1,0 +1,43 @@
+issue : What is canonical and non canonical bump? Why a canonical bump is necessary for security?
+solution: 
+
+To understand why a **canonical bump** is vital for security, we first have to look at how a PDA is "born."
+
+### 1. The "Push" Off the Curve
+
+A standard Solana address (a Public Key) sits on a mathematical curve called **Ed25519**. If an address is "on the curve," it has a corresponding private key.
+
+Programs (smart contracts) need addresses they can control **without** a private key. To get one, we take some "Seeds" (like the string `"vault"`) and run them through a function. If the result is "on the curve," it’s a valid public key that someone *could* own. We don't want that.
+
+So, we add a **Bump** (a number between 0 and 255) to the seeds and try again. We keep changing the bump until the math "fails" and the address lands **off the curve**. Now, it’s a PDA.
+
+### 2. What is a "Canonical" Bump?
+
+There isn't just one number that works. For a single set of seeds (like `"vault"` + `User_ID`), there might be several different bump numbers (e.g., 255, 252, and 248) that all result in an "off-curve" address.
+
+* **The Canonical Bump** is the **highest** valid bump (starting from 255 and counting down) that successfully creates a PDA.
+* **A Non-Canonical Bump** is any other number (like 252 or 248) that also works.
+
+---
+
+### 3. The Vulnerability: The "Evil Twin" Account
+
+The danger of using non-canonical bumps is that **one set of seeds can point to multiple different addresses.**
+
+Imagine you have a program that creates a "User Profile" account. The seeds are `["profile", user_pubkey]`.
+
+1. **The Standard Way:** Your app uses `find_program_address`, which automatically finds the **canonical bump** (let's say it's 255). It creates Address A.
+2. **The Attack:** An attacker notices your program doesn't check if the bump is canonical. They manually calculate a **non-canonical bump** (let's say 254) using the exact same seeds. This creates Address B.
+
+#### Why this is a problem:
+
+* **Confusion:** If your program logic says, "Only the account derived from these seeds can withdraw money," it might see Address B, verify that the seeds are technically correct, and let the attacker through.
+* **State Split:** A user might have two different "Profile" accounts for the same identity. An attacker could substitute their "fake" profile (Address B) in a transaction where the program expects the "real" profile (Address A).
+* **Signature Bypass:** If your program checks `invoke_signed` using a bump the user provides, and you don't verify that it's the *canonical* one, you might accidentally authorize a transaction for a "ghost" account that shouldn't exist.
+
+---
+
+
+**The Golden Rule:**
+Always use `find_program_address` (which finds the canonical bump) and, when verifying the account inside your program, ensure the bump passed in matches that canonical value. Most modern Solana frameworks (like Anchor) handle this "canonical check" for you automatically to prevent these substitution attacks.
+
