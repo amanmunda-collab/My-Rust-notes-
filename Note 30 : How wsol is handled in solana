@@ -1,0 +1,7 @@
+issue : How wsol is handled in solana ?
+solution : 
+
+first read the structure of token account and read about 
+is_native ----> option in there 
+
+https://solana.com/docs/tokens
