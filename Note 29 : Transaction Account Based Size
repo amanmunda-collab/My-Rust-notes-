@@ -1,0 +1,13 @@
+issue : What is transaction account base size ?
+solution: 
+TRANSACTION_ACCOUNT_BASE_SIZE.   -> 64 bytes
+
+This represents the fixed memory overhead for every unique account accessed during a transaction on the Solana blockchain. 
+Key details: 
+
+• Purpose: It accounts for the computational resources required by the validator to load and track an account's state during execution. 
+
+• Billing: This 64-byte overhead is added to the account's actual data size when calculating the total data loaded for a transaction, which is subject to a per-block limit (currently 64 MB). 
+
+• Impact: Even if an account has 0 bytes of data, it still "costs" 64 bytes toward the loading limit, preventing transactions from overwhelming the network by touching a massive number of small accounts. [1, 2]  
+
