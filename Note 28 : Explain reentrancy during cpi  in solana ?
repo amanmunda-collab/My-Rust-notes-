@@ -1,0 +1,60 @@
+issue : explain reentrancy during cpi in solana ?
+
+solution: 
+
+In Solana, **Reentrancy** refers to a situation where a program that is currently executing is called again before its first execution has finished.
+
+Think of it like a "nested" phone call. You are on the phone with Person A, and while still talking to them, you (or they) initiate another call back to Person A.
+
+Here is the breakdown of how Solana handles this during Cross-Program Invocations (CPI).
+
+---
+
+## 1. Direct Self-Recursion (A → A)
+
+**Status: Allowed**
+
+This happens when Program A calls itself directly.
+
+* **The Logic:** Program A triggers an instruction that points back to Program A.
+* **Why it's allowed:** Since the program is calling itself, it "knows" its own state. The developers of Program A are responsible for ensuring that this recursion doesn't cause an infinite loop (which would eventually run out of Compute Budget/Gas) or corrupt its own data.
+* **Use Case:** This is rarely used but might appear in complex logic where a program needs to process a large batch of data by breaking it into smaller, recursive chunks.
+
+---
+
+## 2. Indirect Reentrancy (A → B → A)
+
+**Status: Not Allowed (Error: `ReentrancyNotAllowed`)**
+
+This is the "Dangerous Sandwich." Program A calls Program B, and then Program B tries to call Program A back while the first call to A is still "open" on the stack.
+
+* **The Scenario:**
+1. **Program A** starts executing and modifies some data (like decreasing a user's balance).
+2. **Program A** calls **Program B** (CPI).
+3. **Program B** calls **Program A** again.
+
+
+* **The Problem:** When Program A is called the second time (by B), it might not realize that the first version of itself is still running and hasn't finished "saving" its data. This is exactly how the famous **DAO Hack** happened on Ethereum—the program was tricked into giving out money multiple times before it could update the balance to zero.
+
+---
+
+## Why Solana Blocks Indirect Reentrancy
+
+Solana takes a "Security First" approach. By returning a `ReentrancyNotAllowed` error, the runtime protects developers from a whole category of bugs.
+
+| Feature | Direct (A → A) | Indirect (A → B → A) |
+| --- | --- | --- |
+| **Control** | Program A has full control over the logic. | Program B (an outside party) has control in the middle. |
+| **Predictability** | High (Developer knows their own code). | Low (B could be a malicious "attacker" program). |
+| **Risk** | Logic errors / Infinite loops. | State manipulation / Theft of funds. |
+| **Solana Rule** | **Permitted** | **Blocked by Runtime** |
+
+### Summary in Simple Terms
+
+Imagine you are a **Bank (Program A)**.
+
+* **Direct:** You tell yourself, "Check the vault, then check the vault again." This is fine; you know what you're doing.
+* **Indirect:** you tell a **Customer (Program B)**, "I'm sending you money." While you are still counting the cash, the Customer quickly yells back to your assistant, "Hey, send me money!"
+
+Because the first transaction isn't "closed" yet, you might accidentally send the money twice. Solana prevents this by making it impossible for the Customer (B) to talk back to the Bank (A) until the first interaction is completely finished.
+
