@@ -1,0 +1,30 @@
+issue : What are privilege rules during cpi?
+solution:
+
+***        Privilege rules during cpi 
+
+
+
+Here is a simple, to-the-point summary of how Cross-Program Invocations (CPIs) work in Solana.
+
+A **CPI** is simply when one Solana program calls another program to perform an action.
+
+### 1. Privilege Rules (Permissions)
+
+When Program A calls Program B, it passes along accounts. The golden rule is: **A program cannot give another program more permissions than it already has.**
+
+* **No Upgrades:** If an account is "read-only" in Program A, Program B cannot suddenly make it "writable."
+* **Signer Rules:** Program B can only use an account as a "signer" if it was already a signer in Program A, OR if it is a special Program Derived Address (PDA) owned by Program A.
+* **Downgrades are Fine:** Program B can choose to use fewer permissions (e.g., treating a writable account as read-only).
+* **No Sneaky Loops (Reentrancy):** Program A can call itself directly. However, Program A *cannot* call Program B and have Program B call Program A back.
+
+### 2. The 11-Step Execution Flow
+
+When a CPI happens, the Solana network runs through 11 strict steps, which can be grouped into four main phases:
+
+* **Phase 1: Setup & Fees (Steps 1-3):** Program A triggers the call. The network immediately charges a fee (Compute Units) from the transaction's budget to process the request.
+* **Phase 2: Translation & Security Checks (Steps 4-8):** The network translates the data into a readable format. It verifies PDA seeds, checks that the target program is actually allowed to be called, and strictly enforces the privilege rules mentioned above.
+* **Phase 3: Pre-Sync (Step 9):** Before Program B starts, the network copies the latest account updates from Program A over to Program B so it has the most up-to-date information.
+* **Phase 4: Execution & Post-Sync (Steps 10-11):** Program B executes its code using the shared compute budget. Once it finishes successfully, any changes Program B made to the accounts are synced back to Program A.
+
+**Key Takeaway:** CPIs are heavily restricted to ensure maximum security. The system constantly checks to ensure programs aren't trying to steal permissions, exceed their compute budget, or chain too many calls together (the maximum depth of program calls is usually 5).
