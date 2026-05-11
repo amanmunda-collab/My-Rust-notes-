@@ -1,0 +1,37 @@
+issue : How non transferable tokens are actually transferred to users in token 2022?
+solution: 
+
+What are non transferable token extension in solana . Is it initialized during token creation if yes then how will you even distribute tokens. If no then it is initialized later or what . Explain . Also how to make tokens non transferable for simple spl token
+
+Non-transferable tokens (often called Soulbound Tokens) are a feature of Solana's Token-2022 (Token Extensions) program. They are designed for assets that should stay permanently linked to a single wallet, such as identity credentials, loyalty badges, or achievement certificates.  
++1
+
+1. How Initialization Works
+The Non-Transferable extension is initialized during the creation of the Mint Account.  
+
+In Solana's Token-2022 program, extensions are "baked into" the mint's data structure at the very beginning. You cannot add this extension to a mint after it has already been initialized.  
+
+The Initialization Flow:
+Allocate Space: You calculate the size of the mint account plus the extra space needed for the Non-Transferable extension.  
+
+Initialize Extension: You call the InitializeNonTransferableMint instruction.
+
+Initialize Mint: You call the standard InitializeMint instruction.
+
+Both initialization instructions typically happen in the same transaction. Once this is done, the "non-transferable" property is immutable and applies to every token account created for that mint.  
+
+2. The Distribution "Paradox"
+You asked: “If it’s initialized during creation, how do you even distribute them?”
+
+The answer is simple: You Mint, you don't Transfer.
+
+In a normal token setup, you might mint all tokens to a "Treasury Wallet" and then transfer them to users. With non-transferable tokens, that Treasury Wallet would be "stuck" with the tokens forever because it can't transfer them out.  
+
+The Solution: Direct Minting
+To distribute non-transferable tokens, the Mint Authority sends a MintTo instruction directly to the recipient’s token account.
+
+Standard Tokens: Mint → Treasury → Transfer to User.
+
+Non-Transferable Tokens: Mint → Directly to User.
+
+Because MintTo is not a "transfer" (it's the creation of new supply), it is permitted. Once the tokens arrive in the user's wallet, the extension prevents the Transfer or TransferChecked instructions from ever working.
