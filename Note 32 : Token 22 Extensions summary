@@ -1,0 +1,42 @@
+issue : Give me a summary of the list of token extensions of token 2022 ? 
+solution:
+
+### Money and Fees (The "Toll Booth")
+
+* **TransferFeeConfig & TransferFeeAmount:** These allow the token creator to charge a small fee every time the token is moved. The "Config" sets the rules (like 1%), and the "Amount" keeps track of how much has been collected so it can be withdrawn later.
+* **ConfidentialTransferFeeConfig & Amount:** This is the "secret" version of the above. It allows for transfer fees, but uses encryption so people can't see exactly how much is being taken or held in the fee bucket.
+
+### Privacy (The "Black Box")
+
+* **ConfidentialTransferMint & Account:** This hides your balance and the amount you are sending from the public. While the blockchain still verifies the transaction is valid, nosy neighbors can't see your "bank balance."
+* **ConfidentialMintBurn:** This allows the creator to create (mint) or destroy (burn) tokens privately, without revealing the specific numbers to the public.
+
+### Security and Control (The "Lock and Key")
+
+* **MintCloseAuthority:** Usually, once a token "factory" (mint) is created, it lives forever. This extension allows the creator to "shut down" the factory and get back the small deposit (rent) they paid to start it.
+* **PermanentDelegate:** This is a very powerful "admin" tool. It allows a specific person to move or burn tokens in *any* wallet. It is usually used for regulated tokens (like a digital stock) where a company might need to claw back tokens legally.
+* **DefaultAccountState:** This sets whether a new wallet for this token starts out "Frozen" or "Open." If it’s frozen by default, the user might need to pass a "Know Your Customer" (KYC) check before they can use it.
+* **ImmutableOwner:** This prevents a user from "selling" their entire wallet account to someone else. It locks the ownership of the account to the original person.
+* **CpiGuard:** A safety feature that stops other computer programs from doing "sneaky" things with your tokens in the background without your clear permission.
+* **Pausable & PausableAccount:** This is an "Emergency Stop" button. If a hack or bug is found, the creator can freeze all trading and movement of the token until the problem is fixed.
+
+### Rules of Movement (The "Traffic Laws")
+
+* **NonTransferable & NonTransferableAccount:** These are "Soulbound" tokens. Once you get them, they are stuck in your wallet forever. Useful for ID badges, diplomas, or achievement trophies.
+* **MemoTransfer:** This forces you to write a "memo" (a text note) every time you send the token. This is often required by big crypto exchanges so they know who sent the money.
+* **TransferHook & TransferHookAccount:** This is the most advanced extension. Every time a token is moved, it "calls" a separate custom program to ask for permission. This allows for complex rules, like "this token can only be moved on Fridays."
+
+### Labels and Organization (The "Label Maker")
+
+* **TokenMetadata & MetadataPointer:** This stores the token's name (e.g., "SuperCoin"), symbol (e.g., "SUPR"), and logo directly inside the token's data rather than on a separate website.
+* **TokenGroup & TokenGroupMember:** This allows the creator to "group" tokens together, like a 10,000-piece NFT collection, making it easy for apps to see that they all belong to the same family.
+
+### Math and Display
+
+* **InterestBearingConfig:** As we discussed, this makes the token balance grow over time like a savings account by doing the math automatically.
+* **ScaledUiAmount:** This is the "cosmetic lens" that changes how numbers are displayed in your wallet (e.g., showing 1.0 as 100) without changing the actual value.
+
+### Internal and Testing
+
+* **Uninitialized:** A placeholder for an empty slot.
+* **VariableLenMintTest, AccountPaddingTest, & MintPaddingTest:** These are "dummy" extensions used by developers to test the system and make sure everything fits correctly in the blockchain's memory.
