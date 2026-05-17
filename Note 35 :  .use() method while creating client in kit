@@ -1,5 +1,6 @@
+issue : explain how the structure of client object changes while using the .use() method in solana kit ?
 
-
+solution: 
 
 To understand how the `.use()` method modifies the client, it helps to think of it as an **assembly line** or a **snowball**.
 
@@ -28,6 +29,8 @@ When you first invoke `createClient()`, you get a base object that contains almo
 ### Step 1: Adding the Payer
 
 ```typescript
+
+
 .use(generatedPayer())
 
 ```
