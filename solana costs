@@ -6,4 +6,10 @@ Create token account: ~0.002 SOL ($0.20, refundable)
 
 Tip: You can bundle instructions together so that you dont have to separate priority fees for each transaction.
 
+you can get minimum ammount for rent exemption while creating a new account 
 
+
+read : https://solana.com/docs/tokens/basics/create-mint
+
+// Get minimum balance for rent exemption
+const rent = await client.rpc.getMinimumBalanceForRentExemption(space).send();
