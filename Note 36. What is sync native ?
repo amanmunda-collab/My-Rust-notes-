@@ -1,0 +1,9 @@
+issue: what is sync native in solana ? 
+solution : 
+
+SyncNative is the Token Program instruction you use after transferring SOL into a wrapped SOL (WSOL) token account, to update the token account amount field so it matches the lamports held in the account above its rent-exempt reserve.1
+
+Wrapped SOL is SOL held in a token account for the Token Program’s native mint, and the native mint address for the Token Program is So11111111111111111111111111111111111111112 
+
+
+If you transfer SOL into a wrapped SOL token account, the lamport balance increases immediately, but the token amount field does not change until you call SyncNative.
