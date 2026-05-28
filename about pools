@@ -1,0 +1,3 @@
+Pools are also actually a data accounts keeping account of the token balances where swap is actually happening where both tokens are held by two seperate accounts . 
+pool accounts keep account of the token holding of both accounts -- creating a pair . the trading is done by like amm, dlmm etc . like pump.fun amm /// 
+dex aggregators like jupitor and okx find the best possible pool for trading. 
